@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>EBD Digital — IBBNPVH</title>
+<script>
+// Carrega Firebase de forma garantida antes de tudo
+function carregarScript(url, cb) {
+  var s = document.createElement('script');
+  s.src = url;
+  s.onload = cb;
+  s.onerror = function(){ alert('Erro ao carregar Firebase. Verifique sua internet.'); };
+  document.head.appendChild(s);
+}
+window._dbOk = false;
+window.addEventListener('DOMContentLoaded', function() {
+  carregarScript('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js', function() {
+    carregarScript('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js', function() {
+      try {
+        if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+        db = firebase.firestore();
+        window._dbOk = true;
+      } catch(e) {
+        alert('Erro ao iniciar Firebase: ' + e.message);
+      }
+    });
+  });
+});
+</script>
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,600;0,700;1,500&family=Nunito:wght@400;600;700;800;900&display=swap');
+:root{
+  --azul:#1a3a5c;--azul2:#2c5f8a;--azul3:#3a82c4;
+  --ouro:#c9a84c;--bg:#f0ebe0;--bg2:#e5dfd0;--card:#ffffff;
+  --txt:#1a1a2e;--muted:#6b7280;
+  --verde:#1e6e3f;--vclaro:#d1fae5;
+  --red:#b91c1c;--rclaro:#fee2e2;
+  --am:#b45309;--aclaro:#fef3c7;
+  --roxo:#5b21b6;--rpclaro:#ede9fe;
+  --azclaro:#dbeafe;--azescuro:#1d4ed8;
+  --shadow:0 2px 16px rgba(26,58,92,.1);--r:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;}
+.tela{display:none;min-height:100vh;flex-direction:column;}
+.tela.ativa{display:flex;}
+
+#tela-login{background:linear-gradient(155deg,var(--azul) 0%,var(--azul2) 60%,#1e4d7a 100%);align-items:center;justify-content:center;padding:24px;position:relative;overflow:hidden;}
+#tela-login::before{content:'✝';position:absolute;font-size:420px;color:rgba(255,255,255,.025);top:-120px;right:-90px;font-family:serif;pointer-events:none;line-height:1;}
+.login-card{background:#fff;border-radius:22px;padding:38px 30px;width:100%;max-width:390px;box-shadow:0 24px 64px rgba(0,0,0,.35);position:relative;z-index:1;}
+.login-logo{text-align:center;margin-bottom:28px;}
+.cruz{font-size:48px;color:var(--ouro);display:block;margin-bottom:10px;}
+.login-logo h1{font-family:'Lora',serif;font-size:22px;color:var(--azul);line-height:1.25;}
+.login-logo p{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5;}
+.label{display:block;font-size:11px;font-weight:800;color:var(--azul);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.inp{width:100%;padding:13px 14px;border:2px solid #e5e7eb;border-radius:10px;font-family:'Nunito',sans-serif;font-size:15px;outline:none;transition:border-color .2s;margin-bottom:14px;background:#fafafa;color:var(--txt);}
+.inp:focus{border-color:var(--azul3);background:#fff;}
+select.inp{cursor:pointer;}
+.btn-entrar{width:100%;padding:14px;background:linear-gradient(135deg,var(--azul),var(--azul3));color:#fff;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;cursor:pointer;transition:all .2s;}
+.btn-entrar:hover{opacity:.92;transform:translateY(-1px);}
+.erro-login{background:var(--rclaro);color:var(--red);border-radius:8px;padding:10px 13px;font-size:13px;margin-top:10px;display:none;font-weight:700;}
+
+.app-hdr{background:var(--azul);color:#fff;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 2px 16px rgba(0,0,0,.28);flex-shrink:0;}
+.hdr-left h2{font-family:'Lora',serif;font-size:16px;line-height:1.2;}
+.hdr-left .sub{font-size:11px;opacity:.7;margin-top:2px;}
+.btn-sair{background:rgba(255,255,255,.14);border:none;color:#fff;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;transition:background .2s;}
+.btn-sair:hover{background:rgba(255,255,255,.26);}
+
+#tela-professor{background:var(--bg);}
+.prof-body{padding:14px;max-width:560px;margin:0 auto;flex:1;}
+
+.info-card{background:linear-gradient(135deg,var(--azul),var(--azul3));border-radius:var(--r);padding:16px 18px;color:#fff;margin-bottom:12px;position:relative;overflow:hidden;}
+.info-card::after{content:'✝';position:absolute;right:-10px;top:-20px;font-size:110px;color:rgba(255,255,255,.05);font-family:serif;pointer-events:none;}
+.info-card h3{font-family:'Lora',serif;font-size:18px;margin-bottom:5px;}
+.info-card .meta{font-size:12px;opacity:.85;display:flex;gap:14px;flex-wrap:wrap;}
+.prog-wrap{background:var(--card);border-radius:var(--r);padding:12px 15px;margin-bottom:12px;box-shadow:var(--shadow);}
+.prog-info{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:7px;font-weight:700;}
+.barra{height:8px;background:#e5e7eb;border-radius:99px;overflow:hidden;}
+#barra-fill{height:100%;background:linear-gradient(90deg,var(--azul3),var(--ouro));border-radius:99px;transition:width .4s ease;width:0%;}
+.aniv-banner{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border-radius:var(--r);padding:12px 15px;margin-bottom:12px;display:none;align-items:center;gap:10px;}
+.aniv-banner.vis{display:flex;}
+.aniv-txt{font-size:13px;font-weight:700;line-height:1.5;}
+.alunos-lista{display:flex;flex-direction:column;gap:9px;}
+.aluno-card{background:var(--card);border-radius:var(--r);padding:13px 14px;box-shadow:var(--shadow);border-left:4px solid #e5e7eb;transition:border-color .25s,box-shadow .25s;animation:fadeUp .2s ease both;}
+.aluno-card.presente{border-left-color:var(--verde);box-shadow:0 2px 16px rgba(30,110,63,.12);}
+.aluno-card.ausente{border-left-color:var(--red);box-shadow:0 2px 16px rgba(185,28,28,.08);}
+.aluno-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.aluno-nome{font-weight:700;font-size:14px;color:var(--azul);display:flex;align-items:center;gap:7px;}
+.aluno-num{background:var(--bg2);color:var(--muted);font-size:10px;font-weight:800;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.presenca-btns{display:flex;gap:7px;margin-bottom:9px;}
+.btn-p,.btn-a{flex:1;padding:9px 6px;border-radius:9px;border:2px solid transparent;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn-p{background:var(--vclaro);color:var(--verde);border-color:var(--vclaro);}
+.btn-p.ativo{background:var(--verde);color:#fff;border-color:var(--verde);}
+.btn-a{background:var(--rclaro);color:var(--red);border-color:var(--rclaro);}
+.btn-a.ativo{background:var(--red);color:#fff;border-color:var(--red);}
+.extras{display:flex;gap:5px;flex-wrap:wrap;}
+.btn-extra{padding:6px 10px;border-radius:20px;border:2px solid #e5e7eb;background:#fff;font-family:'Nunito',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.btn-extra.biblia.ativo{background:var(--aclaro);border-color:var(--am);color:var(--am);}
+.btn-extra.visitante.ativo{background:var(--rpclaro);border-color:var(--roxo);color:var(--roxo);}
+.btn-extra.oferta.ativo{background:var(--vclaro);border-color:var(--verde);color:var(--verde);}
+.btn-extra.capitulos.ativo{background:var(--azclaro);border-color:var(--azescuro);color:var(--azescuro);}
+.btn-extra.quarta.ativo{background:#fce7f3;border-color:#be185d;color:#be185d;}
+.btn-extra.domingo.ativo{background:#fff7ed;border-color:#c2410c;color:#c2410c;}
+.campo-vis{margin-top:8px;display:none;}
+.campo-vis.vis{display:block;}
+.campo-vis input{width:100%;padding:8px 12px;border:2px solid var(--rpclaro);border-radius:8px;font-family:'Nunito',sans-serif;font-size:13px;outline:none;}
+.campo-oferta{margin-top:8px;display:none;align-items:center;gap:6px;}
+.campo-oferta.vis{display:flex;}
+.campo-oferta span{font-size:13px;font-weight:700;color:var(--verde);}
+.campo-oferta input{flex:1;padding:8px 12px;border:2px solid var(--vclaro);border-radius:8px;font-family:'Nunito',sans-serif;font-size:13px;outline:none;}
+.btn-enviar-wrap{padding:16px 0 10px;}
+#btn-enviar{width:100%;padding:16px;background:linear-gradient(135deg,var(--verde),#38a169);color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:17px;font-weight:800;cursor:pointer;transition:all .2s;}
+#btn-enviar:disabled{opacity:.6;cursor:default;}
+
+#tela-sucesso{background:linear-gradient(160deg,#1e6e3f,#155d35);align-items:center;justify-content:center;text-align:center;padding:40px 24px;}
+.suc-ic{font-size:90px;margin-bottom:20px;animation:aparecer .5s ease;}
+.suc-h{font-family:'Lora',serif;font-size:28px;color:#fff;margin-bottom:10px;}
+.suc-s{color:rgba(255,255,255,.82);font-size:15px;line-height:1.7;}
+.btn-novo{margin-top:28px;padding:14px 32px;background:#fff;color:var(--verde);border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;}
+
+#tela-operador{background:var(--bg);}
+.op-body{padding:14px;max-width:980px;margin:0 auto;flex:1;}
+.tabs{display:flex;background:var(--bg2);border-radius:11px;padding:4px;margin-bottom:14px;gap:3px;flex-wrap:wrap;}
+.tab-btn{flex:1;min-width:70px;padding:9px 4px;border:none;border-radius:8px;background:transparent;font-family:'Nunito',sans-serif;font-size:11px;font-weight:700;cursor:pointer;color:var(--muted);transition:all .2s;}
+.tab-btn.ativa{background:#fff;color:var(--azul);box-shadow:0 2px 8px rgba(0,0,0,.08);}
+.painel{display:none;}
+.painel.ativo{display:block;}
+.aviso-pend{background:var(--aclaro);border-left:4px solid var(--am);border-radius:9px;padding:12px 14px;font-size:13px;color:#92400e;margin-bottom:14px;display:none;line-height:1.5;font-weight:600;}
+.cards-resumo{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:14px;}
+@media(min-width:480px){.cards-resumo{grid-template-columns:repeat(4,1fr);}}
+.card-stat{background:var(--card);border-radius:var(--r);padding:14px 8px;box-shadow:var(--shadow);text-align:center;animation:fadeUp .2s ease both;}
+.cs-ic{font-size:24px;margin-bottom:4px;}
+.cs-n{font-family:'Lora',serif;font-size:26px;font-weight:700;line-height:1;}
+.cs-r{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-top:4px;}
+.sec-titulo{font-family:'Lora',serif;font-size:17px;color:var(--azul);margin:16px 0 12px;padding-bottom:6px;border-bottom:2px solid var(--ouro);}
+.turmas-op{display:flex;flex-direction:column;gap:12px;}
+.turma-bloco{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;}
+.turma-hdr{background:var(--azul);color:#fff;padding:11px 15px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:7px;}
+.turma-hdr.pend{background:#9ca3af;}
+.turma-hdr strong{font-family:'Lora',serif;font-size:14px;}
+.badges-wrap{display:flex;gap:4px;flex-wrap:wrap;}
+.badge{padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;}
+.b-v{background:var(--vclaro);color:var(--verde);}
+.b-r{background:var(--rclaro);color:var(--red);}
+.b-am{background:var(--aclaro);color:var(--am);}
+.b-rx{background:var(--rpclaro);color:var(--roxo);}
+.b-az{background:var(--azclaro);color:var(--azescuro);}
+.b-gz{background:rgba(255,255,255,.2);color:#fff;}
+.tabela-wrap{padding:8px 12px;overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{text-align:left;padding:6px 8px;background:var(--bg);color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;}
+td{padding:8px 8px;border-bottom:1px solid #f0f0f0;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;}
+.dv{background:var(--verde);}.dr{background:var(--red);}
+.lista-cards{display:flex;flex-direction:column;gap:9px;}
+.list-item{background:var(--card);border-radius:11px;padding:13px 15px;box-shadow:var(--shadow);display:flex;align-items:center;gap:12px;}
+.li-nome{font-weight:700;font-size:14px;color:var(--azul);}
+.li-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.oferta-total{background:var(--azul);color:#fff;border-radius:11px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
+.oferta-total span{font-size:14px;font-weight:700;}
+.oferta-total strong{font-family:'Lora',serif;font-size:22px;}
+.empty{text-align:center;padding:44px 20px;color:var(--muted);}
+.empty .ei{font-size:46px;margin-bottom:10px;}
+.empty p{font-size:14px;}
+.btn-exportar{background:var(--ouro);color:var(--azul);border:none;padding:11px 20px;border-radius:9px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;margin-bottom:10px;transition:opacity .2s;}
+.op-dica{font-size:12px;color:var(--muted);}
+@keyframes aparecer{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="tela-login" class="tela ativa">
+  <div class="login-card">
+    <div class="login-logo">
+      <span class="cruz">&#10011;</span>
+      <h1>EBD Digital</h1>
+      <p>Igreja Batista B&iacute;blica Nova Porto Velho</p>
+    </div>
+    <label class="label">Turma</label>
+    <select id="sel-turma" class="inp">
+      <option value="">Selecione sua turma&hellip;</option>
+      <option value="Rosas de Saron">Rosas de Saron &mdash; Mulheres</option>
+      <option value="Unidos pela Fe">Unidos pela F&eacute; &mdash; Homens</option>
+      <option value="Ovelinhas de Cristo">Ovelinhas de Cristo &mdash; Crian&ccedil;as</option>
+      <option value="Estrelinhas do Ceu">Estrelinhas do C&eacute;u &mdash; Beb&ecirc;s</option>
+      <option value="Mensageiros de Cristo">Mensageiros de Cristo &mdash; Adolescentes</option>
+      <option value="Lirios dos Vales">L&iacute;rios dos Vales &mdash; Jovens</option>
+      <option value="Secretaria">Secretaria</option>
+    </select>
+    <label class="label">Senha</label>
+    <input id="inp-senha" type="password" class="inp" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" onkeydown="if(event.key==='Enter')fazerLogin()">
+    <button class="btn-entrar" onclick="fazerLogin()">Entrar &rsaquo;</button>
+    <div id="erro-login" class="erro-login"></div>
+  </div>
+</div>
+
+<!-- PROFESSOR -->
+<div id="tela-professor" class="tela">
+  <div class="app-hdr">
+    <div class="hdr-left">
+      <h2 id="hdr-turma">Chamada EBD</h2>
+      <div class="sub" id="hdr-data"></div>
+    </div>
+    <button class="btn-sair" onclick="sair()">Sair</button>
+  </div>
+  <div class="prof-body">
+
+    <div class="info-card">
+      <h3 id="card-turma-nome"></h3>
+      <div class="meta">
+        <span>&#128197; <span id="card-data"></span></span>
+        <span>&#128101; <span id="card-total"></span> alunos</span>
+        
+      </div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-info">
+        <span>Progresso da chamada</span>
+        <span id="prog-txt">0 / 0 preenchidos</span>
+      </div>
+      <div class="barra"><div id="barra-fill"></div></div>
+    </div>
+    <div class="aniv-banner" id="aniv-banner">
+      <span style="font-size:32px">&#127874;</span>
+      <div class="aniv-txt" id="aniv-txt"></div>
+    </div>
+    <div class="alunos-lista" id="lista-alunos"></div>
+    <div class="btn-enviar-wrap">
+      <button id="btn-enviar" onclick="enviarChamada()">&#10003; Enviar Chamada para a Secretaria</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUCESSO -->
+<div id="tela-sucesso" class="tela">
+  <div class="suc-ic">&#9989;</div>
+  <div class="suc-h">Chamada Enviada!</div>
+  <div class="suc-s" id="suc-resumo">A Secretaria j&aacute; recebeu os dados.<br>Que Deus aben&ccedil;oe sua aula! &#128591;</div>
+  <button class="btn-novo" onclick="sair()">Nova Chamada</button>
+</div>
+
+<!-- OPERADOR -->
+<div id="tela-operador" class="tela">
+  <div class="app-hdr">
+    <div class="hdr-left">
+      <h2>Secretaria &mdash; EBD 2026</h2>
+      <div class="sub" id="op-data"></div>
+    </div>
+    <button class="btn-sair" onclick="sair()">Sair</button>
+  </div>
+  <div class="op-body">
+    <div class="tabs">
+      <button class="tab-btn ativa" onclick="mudarTab('resumo',this)">&#128202; Resumo</button>
+      <button class="tab-btn" onclick="mudarTab('turmas',this)">&#128203; Turmas</button>
+      <button class="tab-btn" onclick="mudarTab('aniversariantes',this)">&#127874; Aniversariantes</button>
+      <button class="tab-btn" onclick="mudarTab('visitantes',this)">&#128587; Visitantes</button>
+      <button class="tab-btn" onclick="mudarTab('ofertas',this)">&#128176; Ofertas</button>
+    </div>
+    <div id="p-resumo" class="painel ativo">
+      <div class="aviso-pend" id="aviso-pend">&#9203; Aguardando: <span id="txt-pend"></span></div>
+      <div class="cards-resumo" id="cards-resumo"></div>
+      <button class="btn-exportar" onclick="exportar()">&#128196; Exportar Relat&oacute;rio</button>
+      <p class="op-dica">&#128308; Atualiza&ccedil;&atilde;o autom&aacute;tica em tempo real.</p>
+    </div>
+    <div id="p-turmas" class="painel">
+      <h3 class="sec-titulo">Chamadas por Turma</h3>
+      <div class="turmas-op" id="turmas-op"></div>
+    </div>
+    <div id="p-aniversariantes" class="painel">
+      <h3 class="sec-titulo">Aniversariantes da Semana</h3>
+      <div class="lista-cards" id="aniv-lista-op"></div>
+    </div>
+    <div id="p-visitantes" class="painel">
+      <h3 class="sec-titulo">Visitantes de Hoje</h3>
+      <div class="lista-cards" id="vis-lista-op"></div>
+    </div>
+    <div id="p-ofertas" class="painel">
+      <h3 class="sec-titulo">Ofertas por Turma</h3>
+      <div class="lista-cards" id="oferta-lista-op"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+var FIREBASE_CONFIG = {
+  apiKey:"AIzaSyDsMWcCrkKrAjihla87wwDWVXlUY1BviR8",
+  authDomain:"ebd-minha-igreja.firebaseapp.com",
+  projectId:"ebd-minha-igreja",
+  storageBucket:"ebd-minha-igreja.firebasestorage.app",
+  messagingSenderId:"1024487834010",
+  appId:"1:1024487834010:web:ed353f0a28c6618b943a23"
+};
+
+var SENHAS = {
+  "Rosas de Saron":"rosas123",
+  "Unidos pela Fe":"unidos123",
+  "Ovelinhas de Cristo":"ovelhas123",
+  "Estrelinhas do Ceu":"estrelas123",
+  "Mensageiros de Cristo":"mensageiros123",
+  "Lirios dos Vales":"lirios123",
+  "Secretaria":"secretaria123"
+};
+
+var NOMES_TURMAS = {
+  "Rosas de Saron":"Rosas de Saron",
+  "Unidos pela Fe":"Unidos pela Fe",
+  "Ovelinhas de Cristo":"Ovelinhas de Cristo",
+  "Estrelinhas do Ceu":"Estrelinhas do Ceu",
+  "Mensageiros de Cristo":"Mensageiros de Cristo",
+  "Lirios dos Vales":"Lirios dos Vales"
+};
+
+// formato: "NOME|dd/mm"
+var ALUNOS = {
+  "Rosas de Saron":[
+    "ANA CARLA|18/05","ANGELA REIS|22/05","CELIA BORGES|15/02",
+    "GABRIELE MORAES|11/12","GILMARINA|11/10","GLORINALVA|25/10",
+    "JUKEBED|18/08","LUCELIA BORGES|12/01","LUZIA SILVA|17/08",
+    "LUZIMAR|14/08","MAIANA|21/01","MARIA DAS DORES|09/08",
+    "MARIA DAS NEVES|05/08","MARIA DE LOURDES|25/01","MARIA DO CARMO GOMES|16/09",
+    "MARIA DO CARMO NOGUEIRA|15/11","MARIA IOLANDA|","MARIA OLINDA|06/10",
+    "MARIA SANTOS NEVES|02/11","MARLEIDE REIS|05/11","MARLENE ARAUJO|14/02",
+    "MARLENE BORGES|14/07","NILZA CATARINA|02/08","ODETE|05/10",
+    "RENATA GOMES|30/08","ROSA GOMES|21/03","ROSELENE|05/10",
+    "SHEILA|","TEREZA|01/09","VALESKA|22/11"
+  ],
+  "Unidos pela Fe":[
+    "ADENILSON|","ADONIAS DOS SANTOS|","ADONIAS VIEIRA|05/11",
+    "ALDENOR|03/06","ANDERSON MENEZES|15/02","BOSCO|24/04",
+    "CELCIL THEREE|30/03","CLAUDIO|","CLIVES FERREIRA|11/07",
+    "IDIVAN|","JAIME FERREIRA|17/11","JAIME VARGAS|15/07",
+    "JEFERSON SOARES|18/03","JOEL PERTUSSATI|","JOSE MARIA FILHO|10/09",
+    "JOSE PEDRO|","LINDOMAR SILVA|04/02","MANOEL|26/03",
+    "MARCELO REIS|16/08","MENDES|","MONTEVAL|",
+    "NILTO ALVES|","VITOR|05/05","WILSON BRITO|27/04"
+  ],
+  "Ovelinhas de Cristo":[
+    "BIANCA|","FRANCISCA (PROF)|22/06","GEOVANA|20/01",
+    "HELENA|","INGRID|24/10","LETICIA (PROF)|30/07",
+    "LUCAS|05/07","MANUELE|","MARIANA|24/03",
+    "MIGUEL|17/03","PEDRO LUCAS|31/03","SAMUEL|30/05","YASMIN|"
+  ],
+  "Estrelinhas do Ceu":[
+    "ALBENIRA (PROF)|12/09","BENJAMIN|16/09","HEITOR|",
+    "ISABELA|28/01","ISABELA FERNANDA|21/01","LARA VITORIA|21/06",
+    "LAURA SOFIA|20/03","SARA (PROF)|04/10","TATIANE (PROF)|07/10"
+  ],
+  "Mensageiros de Cristo":[
+    "ALICE|29/01","ALZIRENE (PROF)|28/05","CAROL|08/03",
+    "DAVID|11/06","GEOVANNA IASMIM|13/04","IGOR OLIVEIRA (PROF)|11/04",
+    "JOELITA (PROF)|22/04","SARA|25/01","SOFIA|05/09"
+  ],
+  "Lirios dos Vales":[
+    "ADRIANI|","ALEX|29/03","ANA LUIZA|20/11",
+    "BRYAN|17/07","CHARLES (PROF)|","EDESIO (PROF)|06/09",
+    "EDUARDO MALTA|25/12","ELEITON|02/06","ELIVAN|27/09",
+    "GUSTHAVO IGOR|13/08","HELIO GOMES (PROF)|19/10","IAGO|20/03",
+    "JEAN SILVA|15/04","JHENIFER|12/01","JULIA|19/06",
+    "LARISSA|14/03","LEONARDO|22/06","MATEUS|25/06",
+    "NICOLLY|01/05","THIAGO|01/11"
+  ]
+};
+
+var TURMAS_PROF = ["Rosas de Saron","Unidos pela Fe","Ovelinhas de Cristo","Estrelinhas do Ceu","Mensageiros de Cristo","Lirios dos Vales"];
+
+var db;
+var estado = {turma:null,alunos:[],unsub:null};
+
+// Firebase inicializado no DOMContentLoaded acima
+
+function mostrarTela(id){
+  document.querySelectorAll('.tela').forEach(function(t){t.classList.remove('ativa');});
+  document.getElementById(id).classList.add('ativa');
+}
+function dataHoje(){return new Date().toISOString().split('T')[0];}
+function dataFormatada(){return new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});}
+function horaAtual(){return new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
+function diaDeHoje(){var n=new Date();return String(n.getDate()).padStart(2,'0')+'/'+String(n.getMonth()+1).padStart(2,'0');}
+function diasSemana(){
+  var n=new Date(),dia=n.getDay(),inicio=new Date(n);
+  inicio.setDate(n.getDate()-dia);
+  var dias=[];
+  for(var i=0;i<7;i++){var d=new Date(inicio);d.setDate(inicio.getDate()+i);dias.push(String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0'));}
+  return dias;
+}
+
+function fazerLogin(){
+  var turma=document.getElementById('sel-turma').value;
+  var senha=document.getElementById('inp-senha').value;
+  var erro=document.getElementById('erro-login');
+  erro.style.display='none';
+  if(!turma){erro.textContent='Selecione sua turma.';erro.style.display='block';return;}
+  if(!senha){erro.textContent='Digite a senha.';erro.style.display='block';return;}
+  if(!(turma in SENHAS)){erro.textContent='Turma nao reconhecida.';erro.style.display='block';return;}
+  if(SENHAS[turma]!==senha){erro.textContent='Senha incorreta.';erro.style.display='block';return;}
+  // Login OK - Firebase carrega em background, nao bloqueia o acesso
+  estado.turma=turma;
+  if(turma==='Secretaria') abrirOperador();
+  else abrirProfessor();
+}
+
+
+
+function abrirProfessor(){
+  var turma=estado.turma;
+  var raw=ALUNOS[turma]||[];
+  var semana=diasSemana();
+  var hoje=diaDeHoje();
+  var anivs=raw.filter(function(a){var dt=a.split('|')[1]||'';return dt&&semana.indexOf(dt)>=0;}).map(function(a){return a.split('|')[0].trim();});
+  var banner=document.getElementById('aniv-banner');
+  if(anivs.length){
+    document.getElementById('aniv-txt').innerHTML='Aniversariante(s) desta semana: '+anivs.join(', ');
+    banner.classList.add('vis');
+  } else {banner.classList.remove('vis');}
+  document.getElementById('hdr-turma').textContent='Classe '+turma;
+  document.getElementById('hdr-data').textContent=dataFormatada();
+  document.getElementById('card-turma-nome').textContent='Classe '+turma;
+  document.getElementById('card-data').textContent=dataFormatada();
+  document.getElementById('card-total').textContent=raw.length;
+  document.getElementById('card-dia-label').textContent='4a Feira';
+  estado.alunos=raw.map(function(r,i){
+    var p=r.split('|'),nome=p[0].trim(),nasc=p[1]?p[1].trim():'';
+    return{id:i,nome:nome,nasc:nasc,isAniv:nasc&&semana.indexOf(nasc)>=0,isAnivHoje:nasc===hoje,
+      presente:null,biblia:false,visitante:false,nomeVisitante:'',oferta:false,valorOferta:'',capitulos:false,quarta:false,domingo:false};
+  });
+  renderAlunos();
+  mostrarTela('tela-professor');
+}
+
+function renderAlunos(){
+  var lista=document.getElementById('lista-alunos');
+  lista.innerHTML='';
+  estado.alunos.forEach(function(a,i){
+    var cls='aluno-card'+(a.presente===true?' presente':a.presente===false?' ausente':'');
+    var div=document.createElement('div');
+    div.className=cls;
+    div.style.animationDelay=(i*.025)+'s';
+    var anic=a.isAnivHoje?'&#127874; ':a.isAniv?'&#127880; ':'';
+    div.innerHTML=
+      '<div class="aluno-top">'+
+        '<div class="aluno-nome"><span class="aluno-num">'+String(i+1).padStart(2,'0')+'</span>'+anic+a.nome+'</div>'+
+        (a.nasc?'<span style="font-size:11px;color:var(--muted)">'+a.nasc+'</span>':'')+
+      '</div>'+
+      '<div class="presenca-btns">'+
+        '<button class="btn-p '+(a.presente===true?'ativo':'')+'" onclick="marcar('+i+',true)">&#10003; Presente</button>'+
+        '<button class="btn-a '+(a.presente===false?'ativo':'')+'" onclick="marcar('+i+',false)">&#10007; Ausente</button>'+
+      '</div>'+
+      '<div class="extras">'+
+        '<button class="btn-extra biblia '+(a.biblia?'ativo':'')+'" onclick="extra('+i+',\'biblia\')">&#128214; Biblia</button>'+
+        '<button class="btn-extra capitulos '+(a.capitulos?'ativo':'')+'" onclick="extra('+i+',\'capitulos\')">&#128218; Capitulos</button>'+
+        '<button class="btn-extra visitante '+(a.visitante?'ativo':'')+'" onclick="extra('+i+',\'visitante\')">&#128587; Visitante</button>'+
+        '<button class="btn-extra oferta '+(a.oferta?'ativo':'')+'" onclick="extra('+i+',\'oferta\')">&#128176; Oferta</button>'+
+      '</div>'+
+      '<div class="campo-vis '+(a.visitante?'vis':'')+'" id="vis-'+i+'">'+
+        '<input type="text" placeholder="Nome do visitante..." value="'+a.nomeVisitante+'" oninput="estado.alunos['+i+'].nomeVisitante=this.value">'+
+      '</div>'+
+      '<div class="campo-oferta '+(a.oferta?'vis':'')+'" id="of-'+i+'">'+
+        '<span>R$</span>'+
+        '<input type="number" placeholder="0.00" step="0.01" min="0" value="'+a.valorOferta+'" oninput="estado.alunos['+i+'].valorOferta=this.value">'+
+      '</div>';
+    lista.appendChild(div);
+  });
+  atualizarBarra();
+}
+
+function marcar(i,v){estado.alunos[i].presente=(estado.alunos[i].presente===v)?null:v;renderAlunos();}
+function extra(i,campo){
+  estado.alunos[i][campo]=!estado.alunos[i][campo];
+  if(campo==='visitante'&&!estado.alunos[i][campo])estado.alunos[i].nomeVisitante='';
+  if(campo==='oferta'&&!estado.alunos[i][campo])estado.alunos[i].valorOferta='';
+  renderAlunos();
+}
+function atualizarBarra(){
+  var total=estado.alunos.length,feitos=estado.alunos.filter(function(a){return a.presente!==null;}).length;
+  document.getElementById('prog-txt').textContent=feitos+' / '+total+' preenchidos';
+  document.getElementById('barra-fill').style.width=(total?Math.round(feitos/total*100):0)+'%';
+}
+
+async function enviarChamada(){
+  var nm=estado.alunos.filter(function(a){return a.presente===null;}).length;
+  if(nm>0&&!confirm(nm+' aluno(s) sem marcacao. Enviar assim mesmo?'))return;
+  var btn=document.getElementById('btn-enviar');
+  btn.textContent='Enviando...';btn.disabled=true;
+  // Garantir Firebase pronto antes de enviar
+  if(!window._dbOk||!db){
+    try{
+      if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+      db=firebase.firestore();
+      window._dbOk=true;
+    }catch(e){
+      alert('Sem conexao com o servidor. Verifique sua internet e tente novamente.');
+      btn.textContent='Enviar Chamada';btn.disabled=false;return;
+    }
+  }
+  var turma=estado.turma;
+  var docId=dataHoje()+'_'+turma.replace(/\s/g,'_');
+  var presentes=estado.alunos.filter(function(a){return a.presente===true;}).length;
+  var ausentes=estado.alunos.filter(function(a){return a.presente===false;}).length;
+  var biblias=estado.alunos.filter(function(a){return a.biblia;}).length;
+  var visitantes=estado.alunos.filter(function(a){return a.visitante;}).length;
+  var capitulos=estado.alunos.filter(function(a){return a.capitulos;}).length;
+  var quarta=estado.alunos.filter(function(a){return a.quarta;}).length;
+  var domingo=estado.alunos.filter(function(a){return a.domingo;}).length;
+  var totalOferta=estado.alunos.reduce(function(s,a){return s+(parseFloat(a.valorOferta)||0);},0);
+  var anivs=estado.alunos.filter(function(a){return a.isAniv;}).map(function(a){return a.nome;});
+  try{
+    await db.collection('chamadas').doc(docId).set({
+      turma:turma,data:dataHoje(),horaEnvio:horaAtual(),
+      timestamp:firebase.firestore.FieldValue.serverTimestamp(),
+      alunos:estado.alunos,aniversariantes:anivs,
+      totais:{presentes:presentes,ausentes:ausentes,biblias:biblias,visitantes:visitantes,capitulos:capitulos,totalOferta:totalOferta,quarta:quarta,domingo:domingo}
+    });
+    var r=presentes+' presentes';
+    if(ausentes)r+=' / '+ausentes+' ausentes';
+    if(visitantes)r+=' / '+visitantes+' visitante(s)';
+    if(totalOferta>0)r+=' / R$ '+totalOferta.toFixed(2)+' em ofertas';
+    document.getElementById('suc-resumo').innerHTML=r+'<br><br>A Secretaria ja recebeu os dados.<br>Que Deus abencoe sua aula!';
+    mostrarTela('tela-sucesso');
+  }catch(e){alert('Erro ao enviar: '+e.message);btn.textContent='Enviar Chamada';btn.disabled=false;}
+}
+
+function abrirOperador(){
+  document.getElementById('op-data').textContent=dataFormatada();
+  mostrarTela('tela-operador');
+  escutarChamadas();
+  renderAniversariantesSemana();
+}
+
+function escutarChamadas(){
+  estado.unsub=db.collection('chamadas').where('data','==',dataHoje()).onSnapshot(function(snap){
+    var ch={};
+    snap.forEach(function(d){var c=d.data();ch[c.turma+'_'+c.dia]=c;});
+    renderOperador(ch);
+  });
+}
+
+function renderAniversariantesSemana(){
+  var semana=diasSemana(),hoje=diaDeHoje(),todos=[];
+  Object.keys(ALUNOS).forEach(function(turma){
+    ALUNOS[turma].forEach(function(raw){
+      var p=raw.split('|'),nome=p[0].trim(),nasc=p[1]?p[1].trim():'';
+      if(nasc&&semana.indexOf(nasc)>=0)todos.push({nome:nome,nasc:nasc,turma:turma,hoje:nasc===hoje});
+    });
+  });
+  var el=document.getElementById('aniv-lista-op');
+  if(!todos.length){el.innerHTML='<div class="empty"><div class="ei">&#127874;</div><p>Nenhum aniversariante esta semana.</p></div>';return;}
+  el.innerHTML=todos.map(function(a){
+    return '<div class="list-item" style="border-left:4px solid #a855f7">'+
+      '<div style="font-size:30px">'+(a.hoje?'&#127874;':'&#127880;')+'</div>'+
+      '<div><div class="li-nome">'+a.nome+'</div>'+
+      '<div class="li-sub">'+(a.hoje?'Hoje!':'Esta semana')+' ('+a.nasc+') &mdash; '+a.turma+'</div></div></div>';
+  }).join('');
+}
+
+function renderOperador(ch){
+  renderResumo(ch);renderTurmas(ch);renderVisitantes(ch);renderOfertas(ch);
+}
+
+function renderResumo(ch){
+  var t={presentes:0,ausentes:0,biblias:0,visitantes:0,capitulos:0,total:0,totalOferta:0};
+  Object.values(ch).forEach(function(c){
+    t.presentes+=c.totais.presentes;t.ausentes+=c.totais.ausentes;
+    t.biblias+=c.totais.biblias;t.visitantes+=c.totais.visitantes;
+    t.capitulos+=(c.totais.capitulos||0);t.total+=c.alunos.length;
+    t.totalOferta+=(c.totais.totalOferta||0);
+  });
+  var jaEnv={};Object.values(ch).forEach(function(c){jaEnv[c.turma]=true;});
+  var pend=TURMAS_PROF.filter(function(tu){return !jaEnv[tu];});
+  var aviso=document.getElementById('aviso-pend');
+  if(pend.length){aviso.style.display='block';document.getElementById('txt-pend').textContent=pend.join(' / ');}
+  else{aviso.style.display='none';}
+  var env=Object.keys(jaEnv).length,freq=t.total?Math.round(t.presentes/t.total*100):0;
+  var stats=[
+    {ic:'&#128101;',n:t.presentes,r:'Presentes',c:'var(--verde)'},
+    {ic:'&#10007;',n:t.ausentes,r:'Ausentes',c:'var(--red)'},
+    {ic:'&#128214;',n:t.biblias,r:'Com Biblia',c:'var(--am)'},
+    {ic:'&#128218;',n:t.capitulos,r:'Capitulos',c:'var(--azescuro)'},
+    {ic:'&#128587;',n:t.visitantes,r:'Visitantes',c:'var(--roxo)'},
+    {ic:'&#128202;',n:freq+'%',r:'Frequencia',c:'var(--ouro)'},
+    {ic:'&#128176;',n:'R$'+t.totalOferta.toFixed(2),r:'Total Oferta',c:'var(--verde)'},
+    {ic:'&#127979;',n:env+'/'+TURMAS_PROF.length,r:'Turmas enviadas',c:'var(--azul)'}
+  ];
+  document.getElementById('cards-resumo').innerHTML=stats.map(function(s,i){
+    return '<div class="card-stat" style="animation-delay:'+i*.04+'s">'+
+      '<div class="cs-ic">'+s.ic+'</div><div class="cs-n" style="color:'+s.c+'">'+s.n+'</div>'+
+      '<div class="cs-r">'+s.r+'</div></div>';
+  }).join('');
+}
+
+function renderTurmas(ch){
+  document.getElementById('turmas-op').innerHTML=TURMAS_PROF.map(function(turma){
+    var c=ch[turma];
+    if(!c)return '<div class="turma-bloco"><div class="turma-hdr pend"><div><strong>'+turma+'</strong></div><span class="badge b-gz">Aguardando</span></div></div>';
+    var linhas=c.alunos.map(function(a){
+      return '<tr>'+
+        '<td><span class="dot '+(a.presente?'dv':'dr')+'"></span>'+a.nome+'</td>'+
+        '<td>'+(a.presente===true?'P':a.presente===false?'F':'-')+'</td>'+
+        '<td>'+(a.biblia?'Sim':'-')+'</td>'+
+        '<td>'+(a.capitulos?'Sim':'-')+'</td>'+
+        '<td>'+(a.quarta?'Sim':'-')+'</td>'+
+        '<td>'+(a.domingo?'Sim':'-')+'</td>'+
+        '<td>'+(a.visitante?a.nomeVisitante||'?':'-')+'</td>'+
+        '<td>'+(a.oferta?(a.valorOferta?'R$'+parseFloat(a.valorOferta).toFixed(2):'Sim'):'-')+'</td></tr>';
+    }).join('');
+    return '<div class="turma-bloco">'+
+      '<div class="turma-hdr"><div><strong>'+turma+'</strong><span style="font-size:11px;opacity:.7;display:block;margin-top:2px">Enviado as '+c.horaEnvio+'</span></div>'+
+      '<div class="badges-wrap">'+
+        '<span class="badge b-v">'+c.totais.presentes+' pres.</span>'+
+        (c.totais.ausentes?'<span class="badge b-r">'+c.totais.ausentes+' aus.</span>':'')+
+        (c.totais.biblias?'<span class="badge b-am">Biblia: '+c.totais.biblias+'</span>':'')+
+        (c.totais.quarta?'<span class="badge" style="background:#fce7f3;color:#be185d">4aF: '+c.totais.quarta+'</span>':'')+
+        (c.totais.domingo?'<span class="badge" style="background:#fff7ed;color:#c2410c">Dom: '+c.totais.domingo+'</span>':'')+
+        (c.totais.visitantes?'<span class="badge b-rx">Visit: '+c.totais.visitantes+'</span>':'')+
+        (c.totais.totalOferta>0?'<span class="badge b-v">R$'+c.totais.totalOferta.toFixed(2)+'</span>':'')+
+      '</div></div>'+
+      '<div class="tabela-wrap"><table>'+
+        '<thead><tr><th>Aluno</th><th>P/F</th><th>Biblia</th><th>Cap.</th><th>4aF</th><th>Dom</th><th>Visitante</th><th>Oferta</th></tr></thead>'+
+        '<tbody>'+linhas+'</tbody></table></div></div>';
+  }).join('');
+}
+
+function renderVisitantes(ch){
+  var items=[];
+  Object.values(ch).forEach(function(c){
+    c.alunos.filter(function(a){return a.visitante;}).forEach(function(a){
+      items.push({nome:a.nomeVisitante||'Nao informado',por:a.nome,turma:c.turma,dia:c.dia});
+    });
+  });
+  var el=document.getElementById('vis-lista-op');
+  if(!items.length){el.innerHTML='<div class="empty"><div class="ei">&#128587;</div><p>Nenhum visitante registrado ainda.</p></div>';return;}
+  el.innerHTML=items.map(function(v){
+    return '<div class="list-item" style="border-left:4px solid var(--roxo)">'+
+      '<div style="font-size:28px">&#128587;</div>'+
+      '<div><div class="li-nome">'+v.nome+'</div>'+
+      '<div class="li-sub">Trazido por '+v.por+' &mdash; '+v.turma+'</div></div></div>';
+  }).join('');
+}
+
+function renderOfertas(ch){
+  var lista=[],total=0;
+  Object.values(ch).forEach(function(c){var val=c.totais.totalOferta||0;if(val>0){lista.push({turma:c.turma,dia:c.dia,val:val});total+=val;}});
+  var el=document.getElementById('oferta-lista-op');
+  if(!lista.length){el.innerHTML='<div class="empty"><div class="ei">&#128176;</div><p>Nenhuma oferta registrada ainda.</p></div>';return;}
+  el.innerHTML=lista.map(function(o){
+    return '<div class="list-item" style="border-left:4px solid var(--verde);justify-content:space-between">'+
+      '<div><div class="li-nome">'+o.turma+'</div><div class="li-sub">'+(o.dia==='4feira'?'4a Feira':'Domingo')+'</div></div>'+
+      '<div style="font-family:Lora,serif;font-size:20px;color:var(--verde);font-weight:700">R$ '+o.val.toFixed(2)+'</div></div>';
+  }).join('')+
+  '<div class="oferta-total"><span>Total Geral</span><strong>R$ '+total.toFixed(2)+'</strong></div>';
+}
+
+function mudarTab(tab,btn){
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('ativa');});
+  document.querySelectorAll('.painel').forEach(function(p){p.classList.remove('ativo');});
+  btn.classList.add('ativa');
+  document.getElementById('p-'+tab).classList.add('ativo');
+}
+
+function exportar(){
+  db.collection('chamadas').where('data','==',dataHoje()).get().then(function(snap){
+    var txt='RELATORIO EBD - '+dataFormatada()+'\n'+'='.repeat(52)+'\n\n';
+    var tot={presentes:0,ausentes:0,biblias:0,capitulos:0,visitantes:0,total:0,totalOferta:0};
+    snap.forEach(function(d){
+      var c=d.data();
+      tot.presentes+=c.totais.presentes;tot.ausentes+=c.totais.ausentes;
+      tot.biblias+=c.totais.biblias;tot.capitulos+=(c.totais.capitulos||0);
+      tot.visitantes+=c.totais.visitantes;tot.total+=c.alunos.length;tot.totalOferta+=(c.totais.totalOferta||0);
+      txt+='TURMA: '+c.turma+' ('+(c.dia==='4feira'?'4a Feira':'Domingo')+' - enviado as '+c.horaEnvio+')\n'+'-'.repeat(44)+'\n';
+      c.alunos.forEach(function(a){
+        txt+=(a.presente?'[P]':'[F]')+' '+a.nome;
+        if(a.biblia)txt+=' | Biblia';
+        if(a.capitulos)txt+=' | Capitulos';
+        if(a.visitante)txt+=' | Visitante: '+(a.nomeVisitante||'?');
+        if(a.oferta)txt+=' | Oferta: R$ '+(parseFloat(a.valorOferta)||0).toFixed(2);
+        txt+='\n';
+      });
+      if(c.aniversariantes&&c.aniversariantes.length)txt+='Aniversariantes: '+c.aniversariantes.join(', ')+'\n';
+      txt+='\n';
+    });
+    txt+='='.repeat(52)+'\nTOTAIS GERAIS\n';
+    txt+='Presentes: '+tot.presentes+'\nAusentes: '+tot.ausentes+'\n';
+    txt+='Frequencia: '+(tot.total?Math.round(tot.presentes/tot.total*100):0)+'%\n';
+    txt+='Com Biblia: '+tot.biblias+'\nCapitulos: '+tot.capitulos+'\n';
+    txt+='Visitantes: '+tot.visitantes+'\nTotal de Ofertas: R$ '+tot.totalOferta.toFixed(2)+'\n';
+    var blob=new Blob([txt],{type:'text/plain;charset=utf-8'});
+    var url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url;a.download='relatorio-ebd-'+dataHoje()+'.txt';a.click();
+  });
+}
+
+function sair(){
+  if(estado.unsub)estado.unsub();
+  estado={turma:null,alunos:[],unsub:null};
+  document.getElementById('sel-turma').value='';
+  document.getElementById('inp-senha').value='';
+  document.getElementById('erro-login').style.display='none';
+
+  mostrarTela('tela-login');
+}
+
+</script>
+</body>
+</html>
